@@ -44,7 +44,13 @@ public class StateManager
         if (!hasDatabase)
         {
             Log.Information($"✨✨  New database will be created for {Environment.GetEnvironmentVariable("DB_DATABASE")} ✨✨  ");
-            _functions.RunNonQuery($"create database {Environment.GetEnvironmentVariable("DB_DATABASE")};",false);
+            _functions
+                .RunNonQuery($"create database {Environment.GetEnvironmentVariable("DB_DATABASE")};",false);
+            _functions
+                .RunNonQuery("create table " +
+                             "schema_versions(" +
+                             "name varchar(128) not null," +
+                             "executed timestamp with time zone default current_timestamp)");
         }
         
     }

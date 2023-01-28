@@ -18,10 +18,4 @@
       <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Update="SQL\00_system\00_schema_versions.sql">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
 </Project>
