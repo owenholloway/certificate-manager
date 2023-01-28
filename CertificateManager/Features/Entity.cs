@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using CertificateManager.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CertificateManager.Features
 {
-    public abstract class Entity<TId> : IEntity<TId> where TId: struct
+    public class Entity<TId> : IEntity<TId> where TId: struct
     {
         [Key]
-        public virtual TId Id { get; }
+        public virtual TId Id { get; protected set; }
 
         protected Entity(){}
         

@@ -1,13 +1,12 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using CertificateManager.Dto;
 using CertificateManager.Features;
 
 namespace CertificateManager.Model.Certificates;
 
-public class RootCertificateAuthority : Entity<int>
+public class RootCertificateAuthority : Certificate
 {
-    public string CertificateName { get; private set; }
-    
     private RootCertificateAuthority()
     {
         
@@ -17,16 +16,32 @@ public class RootCertificateAuthority : Entity<int>
     {
         var obj = new RootCertificateAuthority();
 
+        var certificate = GenerateCertificateAuthority(certificateName);
 
+        obj.CertificateName = certificateName;
+        
+        obj.PrivateKey = certificate.PrivateKey;
+        obj.PublicKey = certificate.PublicKey;
+        obj.CertificateData = certificate.X509Certificate.RawData;
+
+        obj.ValidFrom = certificate.X509Certificate.NotBefore.ToUniversalTime();
+        obj.ValidTill = certificate.X509Certificate.NotAfter.ToUniversalTime();
+        
         return obj;
 
     }
+
+    public X509Certificate2 GetCertificate()
+    {
+        return X509Certificate2.CreateFromPem(
+            PemEncoding.Write("CERTIFICATE", CertificateData),
+            PemEncoding.Write("PRIVATE KEY", PrivateKey));
+
+    }
     
-    private X509Certificate2 GenerateCA(string subjectName)
+    private static CertificateDto GenerateCertificateAuthority(string subjectName)
     {
         var keyPair = ECDsa.Create();
-        var privateKey = keyPair.ExportECPrivateKey();
-        var publicKey = keyPair.ExportSubjectPublicKeyInfo();
 
         var request = new CertificateRequest($"cn={subjectName}", keyPair, HashAlgorithmName.SHA512);
         
@@ -34,7 +49,18 @@ public class RootCertificateAuthority : Entity<int>
 
         var certificate = request.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5));
 
-        return certificate;
+        AsymmetricAlgorithm key = certificate.GetRSAPrivateKey() ?? (AsymmetricAlgorithm) certificate.GetECDsaPrivateKey()!;
+        
+        var privateKey = key.ExportPkcs8PrivateKey();
+        var publicKey = key.ExportSubjectPublicKeyInfo();
+        
+        return new CertificateDto()
+        {
+            CertificateName = subjectName,
+            PrivateKey = privateKey,
+            PublicKey = publicKey,
+            X509Certificate = certificate
+        };
     }
     
 }
