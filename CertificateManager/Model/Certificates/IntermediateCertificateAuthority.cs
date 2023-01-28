@@ -7,7 +7,6 @@ namespace CertificateManager.Model.Certificates;
 
 public class IntermediateCertificateAuthority : Certificate
 {
-    
     public int RootCaId { get; private set; }
     
     private IntermediateCertificateAuthority()
@@ -23,7 +22,19 @@ public class IntermediateCertificateAuthority : Certificate
 
         var rootCa = rootCertificateAuthority.GetCertificate();
 
+        obj.RootCaId = rootCertificateAuthority.Id;
+        
         var certificate = GenerateIntermediate(rootCa, certificateName);
+        
+        obj.CertificateName = certificateName;
+        
+        obj.PrivateKey = certificate.PrivateKey;
+        obj.PublicKey = certificate.PublicKey;
+        obj.CertificateData = certificate.X509Certificate.RawData;
+        obj.SerialNo = certificate.SerialNo;
+
+        obj.ValidFrom = certificate.X509Certificate.NotBefore.ToUniversalTime();
+        obj.ValidTill = certificate.X509Certificate.NotAfter.ToUniversalTime();
 
         return obj;
 
@@ -35,20 +46,39 @@ public class IntermediateCertificateAuthority : Certificate
 
         var request = new CertificateRequest($"cn={subjectName}", keyPair, HashAlgorithmName.SHA512);
         
-        request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true,false,0, true));
+        request
+            .CertificateExtensions
+            .Add(new X509BasicConstraintsExtension(
+                true,
+                false,
+                0, 
+                false));
 
-        var certificate = request.Create(ca, DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1),new byte[]{0,1});
+        var timestamp = DateTime.Now;
 
-        AsymmetricAlgorithm key = certificate.GetRSAPrivateKey() ?? (AsymmetricAlgorithm) certificate.GetECDsaPrivateKey()!;
+        var serialNo = new[]
+        {
+            (byte)timestamp.Year,
+            (byte)timestamp.Month,
+            (byte)timestamp.Day,
+            (byte)timestamp.Hour,
+            (byte)timestamp.Minute,
+            (byte)timestamp.Second,
+            (byte)timestamp.Millisecond
+        };
         
-        var privateKey = key.ExportPkcs8PrivateKey();
-        var publicKey = key.ExportSubjectPublicKeyInfo();
+        var certificate = request
+            .Create(ca, DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), serialNo);
+
+        var privateKey = keyPair.ExportPkcs8PrivateKey();
+        var publicKey = keyPair.ExportSubjectPublicKeyInfo();
         
         return new CertificateDto()
         {
             CertificateName = subjectName,
             PrivateKey = privateKey,
             PublicKey = publicKey,
+            SerialNo = serialNo,
             X509Certificate = certificate
         };
     }

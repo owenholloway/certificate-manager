@@ -23,6 +23,7 @@ public class RootCertificateAuthority : Certificate
         obj.PrivateKey = certificate.PrivateKey;
         obj.PublicKey = certificate.PublicKey;
         obj.CertificateData = certificate.X509Certificate.RawData;
+        obj.SerialNo = new[] {(byte) 0};
 
         obj.ValidFrom = certificate.X509Certificate.NotBefore.ToUniversalTime();
         obj.ValidTill = certificate.X509Certificate.NotAfter.ToUniversalTime();
@@ -45,14 +46,18 @@ public class RootCertificateAuthority : Certificate
 
         var request = new CertificateRequest($"cn={subjectName}", keyPair, HashAlgorithmName.SHA512);
         
-        request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true,false,0, true));
+        request
+            .CertificateExtensions
+            .Add(new X509BasicConstraintsExtension(
+                true,
+                true,
+                5, 
+                false));
 
         var certificate = request.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5));
 
-        AsymmetricAlgorithm key = certificate.GetRSAPrivateKey() ?? (AsymmetricAlgorithm) certificate.GetECDsaPrivateKey()!;
-        
-        var privateKey = key.ExportPkcs8PrivateKey();
-        var publicKey = key.ExportSubjectPublicKeyInfo();
+        var privateKey = keyPair.ExportPkcs8PrivateKey();
+        var publicKey = keyPair.ExportSubjectPublicKeyInfo();
         
         return new CertificateDto()
         {

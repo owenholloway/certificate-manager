@@ -1,11 +1,13 @@
 CREATE TABLE public.root_certificate_authorities (
-    id serial4 NOT NULL,
-    certificate_name varchar NULL,
-    private_key bytea NOT NULL,
-    public_key bytea NOT NULL,
-    certificate_data bytea NOT NULL,
-    valid_from timestamp with time zone NOT NULL,
-    valid_till timestamp with time zone NOT NULL
+    id serial4 not null,
+    certificate_name varchar null,
+    private_key bytea not null,
+    public_key bytea not null,
+    certificate_data bytea not null,
+    serial_no bytea not null,
+    valid_from timestamp with time zone not null,
+    valid_till timestamp with time zone not null
 );
-ALTER TABLE public.root_certificate_authorities 
-    ADD CONSTRAINT root_certificate_authorities_pk PRIMARY KEY (id);
+
+alter table public.root_certificate_authorities 
+    add constraint root_certificate_authorities_pk primary key (id);

@@ -13,13 +13,15 @@ builder.RegisterModule<CommonStore>();
 
 var container = builder.Build();
 
-// var authority = RootCertificateAuthority.Create("Test Cert");
+var authority = RootCertificateAuthority.Create("Test Cert");
 
-// container.Resolve<IReadWriteRepository>().Create<RootCertificateAuthority, int>(authority);
-// container.Resolve<IReadWriteRepository>().Commit();
+container.Resolve<IReadWriteRepository>().Create<RootCertificateAuthority, int>(authority);
+container.Resolve<IReadWriteRepository>().Commit();
 
-var cert = container.Resolve<IReadOnlyRepository>().GetById<RootCertificateAuthority, int>(1).GetCertificate();
+var ca = container.Resolve<IReadOnlyRepository>().GetById<RootCertificateAuthority, int>(1);
 
+var intermediate = IntermediateCertificateAuthority.Create(ca, "Test Intermediate");
 
+container.Resolve<IReadWriteRepository>().Create<IntermediateCertificateAuthority, int>(intermediate);
+container.Resolve<IReadWriteRepository>().Commit();
 
-Log.Information("Get Cert");

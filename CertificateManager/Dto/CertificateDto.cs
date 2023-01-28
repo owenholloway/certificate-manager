@@ -8,7 +8,7 @@ public class CertificateDto
     
     public byte[] PrivateKey { get; set; }
     public byte[] PublicKey { get; set; }
-    
+    public byte[] SerialNo { get; set; }
     
     public X509Certificate2 X509Certificate { get; set; }
 }

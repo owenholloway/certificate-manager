@@ -1,19 +1,18 @@
-CREATE TABLE public.intermediate_certificate_authorities (
-    id serial4 NOT NULL,
-    root_ca_id int4 NOT NULL,
-    certificate_name varchar NULL,
-    private_key bytea NOT NULL,
-    public_key bytea NOT NULL,
-    certificate_data bytea NOT NULL,
-    valid_from timestamp with time zone NOT NULL,
-    valid_till timestamp with time zone NOT NULL
+create table public.intermediate_certificate_authorities (
+    id serial4 not null,
+    root_ca_id int4 not null,
+    certificate_name varchar null,
+    private_key bytea not null,
+    public_key bytea not null,
+    certificate_data bytea not null,
+    serial_no bytea not null,
+    valid_from timestamp with time zone not null,
+    valid_till timestamp with time zone not null
 );
 
-ALTER TABLE public.intermediate_certificate_authorities 
-    ADD CONSTRAINT intermediate_certificate_authorities_pk PRIMARY KEY (id);
+alter table public.intermediate_certificate_authorities 
+    add constraint intermediate_certificate_authorities_pk primary key (id);
 
-ALTER TABLE public.intermediate_certificate_authorities 
-    ADD CONSTRAINT intermediate_certificate_authorities_root_ca_id_fk 
-        FOREIGN KEY (root_ca_id) REFERENCES public.root_certificate_authorities(id);
-
-
+alter table public.intermediate_certificate_authorities 
+    add constraint intermediate_certificate_authorities_root_ca_id_fk 
+        foreign key (root_ca_id) references public.root_certificate_authorities(id);

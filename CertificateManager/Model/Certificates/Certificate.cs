@@ -11,6 +11,7 @@ public class Certificate : Entity<int>
     public byte[] PrivateKey { get; protected set; }
     public byte[] PublicKey { get; protected set; }
     public byte[] CertificateData { get; protected set; }
+    public byte[] SerialNo { get; protected set; }
     
     public DateTimeOffset ValidFrom { get; protected set; }
     public DateTimeOffset ValidTill { get; protected set; }
