@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using CertificateManager.Dto;
 using CertificateManager.Features;
 
@@ -7,6 +8,9 @@ namespace CertificateManager.Model.Certificates;
 
 public class RootCertificateAuthority : Certificate
 {
+    
+    public virtual List<IntermediateCertificateAuthority> IntermediateCertificateAuthorities { get; private set; }
+    
     private RootCertificateAuthority()
     {
         
@@ -23,7 +27,7 @@ public class RootCertificateAuthority : Certificate
         obj.PrivateKey = certificate.PrivateKey;
         obj.PublicKey = certificate.PublicKey;
         obj.CertificateData = certificate.X509Certificate.RawData;
-        obj.SerialNo = new[] {(byte) 0};
+        obj.SerialNo = Encoding.ASCII.GetBytes(certificate.X509Certificate.SerialNumber);
 
         obj.ValidFrom = certificate.X509Certificate.NotBefore.ToUniversalTime();
         obj.ValidTill = certificate.X509Certificate.NotAfter.ToUniversalTime();
@@ -54,7 +58,7 @@ public class RootCertificateAuthority : Certificate
                 5, 
                 false));
 
-        var certificate = request.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5));
+        var certificate = request.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(6));
 
         var privateKey = keyPair.ExportPkcs8PrivateKey();
         var publicKey = keyPair.ExportSubjectPublicKeyInfo();

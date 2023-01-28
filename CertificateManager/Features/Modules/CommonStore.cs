@@ -1,5 +1,7 @@
 using Autofac;
+using CertificateManager.Features.Stores;
 using CertificateManager.Interfaces;
+using CertificateManager.Interfaces.Stores;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 

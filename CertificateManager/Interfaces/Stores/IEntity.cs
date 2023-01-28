@@ -1,4 +1,4 @@
-namespace CertificateManager.Interfaces
+namespace CertificateManager.Interfaces.Stores
 {
     public interface IEntity<out TId>
     {

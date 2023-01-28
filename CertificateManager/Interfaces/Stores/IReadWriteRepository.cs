@@ -1,6 +1,6 @@
-﻿using CertificateManager.Features;
+﻿using CertificateManager.Features.Stores;
 
-namespace CertificateManager.Interfaces
+namespace CertificateManager.Interfaces.Stores
 {
     public interface IReadWriteRepository : IReadOnlyRepository
     {

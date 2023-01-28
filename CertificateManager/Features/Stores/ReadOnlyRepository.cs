@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
-using CertificateManager.Interfaces;
+using CertificateManager.Interfaces.Stores;
 using Microsoft.EntityFrameworkCore;
 
-namespace CertificateManager.Features
+namespace CertificateManager.Features.Stores
 {
     public sealed class ReadOnlyRepository : IReadOnlyRepository
     {

@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using CertificateManager.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using CertificateManager.Interfaces.Stores;
 
-namespace CertificateManager.Features
+namespace CertificateManager.Features.Stores
 {
     public class Entity<TId> : IEntity<TId> where TId: struct
     {

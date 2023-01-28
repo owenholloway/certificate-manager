@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
-using CertificateManager.Interfaces;
+using CertificateManager.Interfaces.Stores;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-namespace CertificateManager.Features
+namespace CertificateManager.Features.Stores
 {
     public sealed class ReadWriteRepository : IReadWriteRepository
     {

@@ -68,7 +68,7 @@ public class IntermediateCertificateAuthority : Certificate
         };
         
         var certificate = request
-            .Create(ca, DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), serialNo);
+            .Create(ca, DateTimeOffset.Now, DateTimeOffset.Now.AddYears(3), serialNo);
 
         var privateKey = keyPair.ExportPkcs8PrivateKey();
         var publicKey = keyPair.ExportSubjectPublicKeyInfo();

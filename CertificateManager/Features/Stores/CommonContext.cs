@@ -1,7 +1,7 @@
 using CertificateManager.Model.Certificates;
 using Microsoft.EntityFrameworkCore;
 
-namespace CertificateManager.Features;
+namespace CertificateManager.Features.Stores;
 
 public class CommonContext : DbContext
 {
@@ -15,6 +15,10 @@ public class CommonContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<RootCertificateAuthority>()
+            .HasMany<IntermediateCertificateAuthority>(rca => rca.IntermediateCertificateAuthorities)
+            .WithOne()
+            .HasForeignKey(ica => ica.RootCaId);
 
         base.OnModelCreating(modelBuilder);
     }

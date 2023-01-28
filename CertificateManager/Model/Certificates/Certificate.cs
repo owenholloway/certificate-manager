@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography.X509Certificates;
 using CertificateManager.Features;
+using CertificateManager.Features.Stores;
 
 namespace CertificateManager.Model.Certificates;
 
