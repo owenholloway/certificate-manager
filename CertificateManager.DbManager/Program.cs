@@ -26,3 +26,4 @@ var container = builder.Build();
 Log.Information("🎩 Starting schema update, hold onto your hats 🎩");
 
 container.Resolve<StateManager>().ResolveDatabaseState();
+container.Resolve<StateManager>().ResolveSchemaState();

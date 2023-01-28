@@ -47,6 +47,62 @@ public class SqlFunctions
 
         GetConnection(usedScoped).Close();
     }
+
+    public void CheckIfScriptRun(SqlScript script)
+    {
+        var query = $"select exists ( select from schema_versions where name = '{script.Filename}' )";
+        
+        Log.Information($"🟦 Checking SQL File -- {script.Filename} -- ");
+        
+        script.HasBeenRun = RunBooleanQuery(query);
+
+        if (script.HasBeenRun) Log.Information($"🟧 Already Run -- {script.Filename} -- ");
+
+    }
+
+    public void RunScript(SqlScript script)
+    {
+        if (script.HasBeenRun) return;
+
+        GetConnection().Open();
+
+        try
+        {
+            var begin = new NpgsqlCommand("begin;", GetConnection());
+            begin.ExecuteNonQuery();
+
+            var scriptContent = script.GetScriptContent();
+            
+            var scriptFunction = new NpgsqlCommand(scriptContent, GetConnection());
+            scriptFunction.ExecuteNonQuery();
+            
+            var commit = new NpgsqlCommand("commit;", GetConnection());
+            commit.ExecuteNonQuery();
+            
+            var recordCommandString = $"insert into schema_versions values ('{script.Filename}',now())";
+            var recordCommand = new NpgsqlCommand(recordCommandString, GetConnection());
+            recordCommand.ExecuteNonQuery();
+            
+            Log.Information($"🟩 Applied to Schema -- {script.Filename} -- ");
+            
+        }
+        catch (Exception e)
+        {
+            //Log.Error(e.StackTrace);
+            
+            var rollback = new NpgsqlCommand("rollback;", GetConnection());
+            rollback.ExecuteNonQuery();
+            
+            
+            Log.Information($"🟥 Failed Script     -- {script.Filename} -- ");
+        }
+        
+        GetConnection().Close();
+        
+        script.HasBeenRun = true;
+        
+        
+    }
     
     private NpgsqlConnection GetConnection(bool usedScoped = true)
     {

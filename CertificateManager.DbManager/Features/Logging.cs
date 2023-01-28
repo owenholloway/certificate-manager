@@ -7,7 +7,7 @@ public class Logging
     public static ILogger CreateLogger()
     {
         return new LoggerConfiguration()
-            .MinimumLevel.Verbose()
+            .MinimumLevel.Information()
             .WriteTo.Console()
             .CreateLogger();
     }
