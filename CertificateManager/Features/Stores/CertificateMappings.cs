@@ -9,7 +9,8 @@ public static class CertificateMappings
     public static IQueryable<RootCertificateAuthority> IncludeRelationships(this IQueryable<RootCertificateAuthority> obj)
     {
         return obj
-            .Include(ca => ca.IntermediateCertificateAuthorities);
+            .Include(ca => ca.IntermediateCertificateAuthorities)
+            .ThenInclude(ica => ica.IssuedCertificates);
     }
     
     public static IQueryable<RootRequest> IncludeRelationships(this IQueryable<RootRequest> obj)
@@ -25,6 +26,13 @@ public static class CertificateMappings
             .Include(ir => ir.IntermediateCertificateAuthorities)
             .Include(ir => ir.RootCertificateAuthority)
             .ThenInclude(rca => rca.IntermediateCertificateAuthorities);
+    }
+    
+    public static IQueryable<IssueRequest> IncludeRelationships(this IQueryable<IssueRequest> obj)
+    {
+        return obj
+            .Include(ir => ir.IssuedCertificates)
+            .Include(ir => ir.IntermediateCertificateAuthority);
     }
     
 }

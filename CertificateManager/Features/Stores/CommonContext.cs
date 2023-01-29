@@ -18,18 +18,18 @@ public class CommonContext : DbContext
     public DbSet<IntermediateRequest> IntermediateRequests { get; set; }
     public DbSet<IntermediateCertificateAuthority> IntermediateCertificateAuthorities { get; set; }
 
+    public DbSet<IssueRequest> IssueRequests { get; set; }
+    public DbSet<IssuedCertificate> IssuedCertificates { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Request Relationships
         modelBuilder.Entity<RootRequest>()
             .HasMany<RootCertificateAuthority>(rca => rca.RootCertificateAuthorities)
             .WithOne()
             .HasForeignKey(rca => rca.RootRequestId);
-        
-        modelBuilder.Entity<RootCertificateAuthority>()
-            .HasMany<IntermediateCertificateAuthority>(rca => rca.IntermediateCertificateAuthorities)
-            .WithOne()
-            .HasForeignKey(ica => ica.RootCaId);
 
+        
         modelBuilder.Entity<IntermediateRequest>()
             .HasMany<IntermediateCertificateAuthority>(ir => ir.IntermediateCertificateAuthorities)
             .WithOne()
@@ -39,6 +39,29 @@ public class CommonContext : DbContext
             .HasOne<RootCertificateAuthority>(ir => ir.RootCertificateAuthority)
             .WithOne()
             .HasForeignKey<IntermediateRequest>(ir => ir.RootCaId);
+
+        
+        modelBuilder.Entity<IssueRequest>()
+            .HasMany<IssuedCertificate>(ir => ir.IssuedCertificates)
+            .WithOne()
+            .HasForeignKey(ic => ic.IssueRequestId);
+        
+        modelBuilder.Entity<IssueRequest>()
+            .HasOne<IntermediateCertificateAuthority>(ir => ir.IntermediateCertificateAuthority)
+            .WithOne()
+            .HasForeignKey<IssueRequest>(ir => ir.IntermediateCaId);
+
+
+        // Certificate Relationships
+        modelBuilder.Entity<RootCertificateAuthority>()
+            .HasMany<IntermediateCertificateAuthority>(rca => rca.IntermediateCertificateAuthorities)
+            .WithOne()
+            .HasForeignKey(ica => ica.RootCaId);
+
+        modelBuilder.Entity<IntermediateCertificateAuthority>()
+            .HasMany<IssuedCertificate>(ica => ica.IssuedCertificates)
+            .WithOne()
+            .HasForeignKey(ic => ic.IntermediateCaId);
         
         base.OnModelCreating(modelBuilder);
     }

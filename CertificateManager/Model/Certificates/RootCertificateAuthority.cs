@@ -49,9 +49,13 @@ public class RootCertificateAuthority : Certificate
     
     private static CertificateDto GenerateCertificateAuthority(string subjectName)
     {
-        var keyPair = ECDsa.Create();
+        var keyPair = RSA.Create(2048);
 
-        var request = new CertificateRequest($"cn={subjectName}", keyPair, HashAlgorithmName.SHA512);
+        var request = new CertificateRequest(
+            $"cn={subjectName}", 
+            keyPair, 
+            HashAlgorithmName.SHA512,
+            RSASignaturePadding.Pkcs1);
         
         request
             .CertificateExtensions

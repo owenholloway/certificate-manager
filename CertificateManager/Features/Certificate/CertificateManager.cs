@@ -40,7 +40,6 @@ public class CertificateController
         }
         
         ReadWriteRepository.Commit();
-        
         Thread.Sleep(200);
         
         var openIntermediateRequests = ReadWriteRepository
@@ -64,6 +63,30 @@ public class CertificateController
         }
         
         ReadWriteRepository.Commit();
+        Thread.Sleep(200);
+        
+        var openIssueRequests = ReadWriteRepository
+            .Table<IssueRequest, int>()
+            .IncludeRelationships()
+            .Where(rr => 
+                rr.IssuedCertificates
+                    .Count(rca => rca.ValidTill > Now()) == 0);
+        
+        foreach (var openRequest in openIssueRequests)
+        {
+            var certificate = IssuedCertificate
+                .Create(
+                    openRequest.Id, 
+                    openRequest.IntermediateCertificateAuthority, 
+                    openRequest.CertificateSigningRequest);
+        
+            ReadWriteRepository.Create<IssuedCertificate, int>(certificate);
+
+            Thread.Sleep(200);
+        }
+        
+        ReadWriteRepository.Commit();
+        Thread.Sleep(200);
         
     }
 
@@ -73,7 +96,8 @@ public class CertificateController
         var caChains = ReadOnlyRepository
             .Table<RootCertificateAuthority, int>()
             .Where(ca => ca.ValidTill > Now())
-            .IncludeRelationships();
+            .IncludeRelationships()
+            .ToList();
             
         var privateOutput 
             = Environment.GetEnvironmentVariable("CERT_PRIV_DIR");
@@ -82,6 +106,7 @@ public class CertificateController
 
         if (privateOutput == null) return;
         if (publicOutput == null) return;
+        
         Directory.CreateDirectory(privateOutput);
         Directory.CreateDirectory(publicOutput);
 
@@ -104,6 +129,19 @@ public class CertificateController
             
                 var intermediatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", intermediateCertificateAuthority.PrivateKey));
                 File.WriteAllText($"{privateOutput}{intermediateCertificateAuthority.CertificateName}.key.pem",intermediatePrivateFileData);
+
+                foreach (var issuedCertificate in intermediateCertificateAuthority.IssuedCertificates)
+                {
+                    var issuedCertificatePublicFileData = new string(PemEncoding.Write("CERTIFICATE", issuedCertificate.CertificateData));
+                    File.WriteAllText($"{publicOutput}{issuedCertificate.CertificateName}.pem",issuedCertificatePublicFileData);
+
+                    var issuedCertificateFullChainData =  issuedCertificatePublicFileData + "\n" + intermediatePublicFileData  + "\n" + caPublicFileData;
+                    File.WriteAllText($"{publicOutput}{issuedCertificate.CertificateName}.fullchain.pem",issuedCertificateFullChainData);
+            
+                    var issuedCertificatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", issuedCertificate.PrivateKey));
+                    File.WriteAllText($"{privateOutput}{issuedCertificate.CertificateName}.key.pem",issuedCertificatePrivateFileData);
+                }
+                
             }
             
         }

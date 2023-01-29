@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using CertificateManager.Dto;
 using CertificateManager.Features;
+using CertificateManager.Features.Certificate;
 
 namespace CertificateManager.Model.Certificates;
 
@@ -10,7 +11,9 @@ public class IntermediateCertificateAuthority : Certificate
     public int RootCaId { get; private set; }
     
     public int IntermediateRequestId { get; private set; }
-    
+
+    public virtual List<IssuedCertificate> IssuedCertificates { get; private set; } = new();
+
     protected IntermediateCertificateAuthority()
     {
         
@@ -33,7 +36,7 @@ public class IntermediateCertificateAuthority : Certificate
 
         obj.IntermediateRequestId = intermediateRequestId;
         
-        obj.PrivateKey = certificate.PrivateKey;
+        obj.PrivateKey = Encryption.Encrypt(certificate.PrivateKey);
         obj.PublicKey = certificate.PublicKey;
         obj.CertificateData = certificate.X509Certificate.RawData;
         obj.SerialNo = certificate.SerialNo;
@@ -45,11 +48,23 @@ public class IntermediateCertificateAuthority : Certificate
 
     }
     
+    public X509Certificate2 GetCertificate()
+    {
+        return X509Certificate2.CreateFromPem(
+            PemEncoding.Write("CERTIFICATE", CertificateData),
+            PemEncoding.Write("PRIVATE KEY", Encryption.Decrypt(PrivateKey)));
+
+    }
+    
     private static CertificateDto GenerateIntermediate(X509Certificate2 ca, string subjectName)
     {
-        var keyPair = ECDsa.Create();
+        var keyPair = RSA.Create(2048);
 
-        var request = new CertificateRequest($"cn={subjectName}", keyPair, HashAlgorithmName.SHA512);
+        var request = new CertificateRequest(
+            $"cn={subjectName}", 
+            keyPair, 
+            HashAlgorithmName.SHA512,
+            RSASignaturePadding.Pkcs1);
         
         request
             .CertificateExtensions
