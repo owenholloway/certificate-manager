@@ -9,12 +9,15 @@ public class IntermediateCertificateAuthority : Certificate
 {
     public int RootCaId { get; private set; }
     
-    private IntermediateCertificateAuthority()
+    public int IntermediateRequestId { get; private set; }
+    
+    protected IntermediateCertificateAuthority()
     {
         
     }
 
     public static IntermediateCertificateAuthority Create(
+        int intermediateRequestId,
         RootCertificateAuthority rootCertificateAuthority, 
         string certificateName)
     {
@@ -27,6 +30,8 @@ public class IntermediateCertificateAuthority : Certificate
         var certificate = GenerateIntermediate(rootCa, certificateName);
         
         obj.CertificateName = certificateName;
+
+        obj.IntermediateRequestId = intermediateRequestId;
         
         obj.PrivateKey = certificate.PrivateKey;
         obj.PublicKey = certificate.PublicKey;

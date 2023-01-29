@@ -1,10 +1,9 @@
-using System.Data.Entity;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using CertificateManager.Features.Stores;
-using CertificateManager.Interfaces;
 using CertificateManager.Interfaces.Stores;
 using CertificateManager.Model.Certificates;
+using CertificateManager.Model.Certificates.Requests;
+using Serilog;
 
 namespace CertificateManager.Features.Certificate;
 
@@ -23,30 +22,54 @@ public class CertificateController
 
     public void ResolveChainConfiguration()
     {
-        var currentCertificates = ReadOnlyRepository
-            .Table<RootCertificateAuthority, int>()
-            .Count(ca => ca.ValidTill > Now());
+        var openRootRequests = ReadWriteRepository
+            .Table<RootRequest, int>()
+            .IncludeRelationships()
+            .Where(rr => 
+                rr.RootCertificateAuthorities
+                    .Count(rca => rca.ValidTill > Now()) == 0);
+        
+        foreach (var openRequest in openRootRequests)
+        {       
+            var certificate = RootCertificateAuthority.Create(openRequest.Id, openRequest.CertificateName);
+        
+            ReadWriteRepository.Create<RootCertificateAuthority, int>(certificate);
 
-        if (currentCertificates == 0)
-        {
-            GenerateNewCa();
+            Thread.Sleep(200);
+            
         }
         
-        var currentIntermediates = ReadOnlyRepository
-            .Table<IntermediateCertificateAuthority, int>()
-            .Count(ca => ca.ValidTill > Now());
-
-        if (currentIntermediates == 0)
+        ReadWriteRepository.Commit();
+        
+        Thread.Sleep(200);
+        
+        var openIntermediateRequests = ReadWriteRepository
+            .Table<IntermediateRequest, int>()
+            .IncludeRelationships()
+            .Where(rr => 
+                rr.IntermediateCertificateAuthorities
+                    .Count(rca => rca.ValidTill > Now()) == 0);
+        
+        foreach (var openRequest in openIntermediateRequests)
         {
-            GenerateIntermediateCa();
+            var certificate = IntermediateCertificateAuthority
+                .Create(
+                    openRequest.Id, 
+                    openRequest.RootCertificateAuthority, 
+                    openRequest.CertificateName);
+        
+            ReadWriteRepository.Create<IntermediateCertificateAuthority, int>(certificate);
+
+            Thread.Sleep(200);
         }
+        
+        ReadWriteRepository.Commit();
         
     }
 
-
+    
     public void OutputCertificateChains()
-    {
-        var now = DateTimeOffset.Now.ToUniversalTime();
+    {   
         var caChains = ReadOnlyRepository
             .Table<RootCertificateAuthority, int>()
             .Where(ca => ca.ValidTill > Now())
@@ -87,34 +110,4 @@ public class CertificateController
         
     }
     
-
-    private void GenerateNewCa()
-    {
-        var caName = Environment.GetEnvironmentVariable("ROOT_CA_NAME");
-        
-        if (caName == null) return;
-        
-        var certificate = RootCertificateAuthority.Create(caName);
-        
-        ReadWriteRepository.Create<RootCertificateAuthority, int>(certificate);
-        ReadWriteRepository.Commit();
-
-    }
-
-    private void GenerateIntermediateCa()
-    {
-        
-        var ca = ReadOnlyRepository
-            .Table<RootCertificateAuthority, int>()
-            .IncludeRelationships()
-            .FirstOrDefault(ca => ca.ValidTill > Now());
-
-        if (ca == null) return;
-        
-        var certificate = IntermediateCertificateAuthority.Create(ca, "temp");
-
-        ReadWriteRepository.Create<IntermediateCertificateAuthority, int>(certificate);
-        ReadWriteRepository.Commit();
-        
-    }
 }

@@ -3,6 +3,8 @@ using CertificateManager.Features.Stores;
 using CertificateManager.Interfaces;
 using CertificateManager.Interfaces.Stores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace CertificateManager.Features.Modules;
@@ -23,14 +25,29 @@ public class CommonStore : Module
 
         builder.Register(c =>
         {
-            var optionsBuilder = new DbContextOptionsBuilder();
             
-            optionsBuilder.LogTo(Log.Information);
+            
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            var factory = new LoggerFactory().AddSerilog(Log.Logger);
+            
+            optionsBuilder.UseLoggerFactory(factory);
             optionsBuilder.EnableSensitiveDataLogging();
 
             optionsBuilder.UseNpgsql(GenerateConnectionString());
             
             optionsBuilder.UseSnakeCaseNamingConvention();
+            
+            var options = new MemoryCacheOptions
+            {
+                ExpirationScanFrequency = TimeSpan.FromMilliseconds(100)
+            };
+
+            var cache = new MemoryCache(options);
+
+            optionsBuilder.UseMemoryCache(cache);
+
+            optionsBuilder.EnableDetailedErrors();
             
             return optionsBuilder.Options;
         }).As<DbContextOptions>().InstancePerLifetimeScope();

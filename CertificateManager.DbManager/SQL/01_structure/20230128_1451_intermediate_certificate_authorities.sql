@@ -16,3 +16,4 @@ alter table public.intermediate_certificate_authorities
 alter table public.intermediate_certificate_authorities 
     add constraint intermediate_certificate_authorities_root_ca_id_fk 
         foreign key (root_ca_id) references public.root_certificate_authorities(id);
+

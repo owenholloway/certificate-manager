@@ -9,7 +9,7 @@ namespace CertificateManager.Model.Certificates;
 
 public class Certificate : Entity<int>
 {
-    public string CertificateName { get; protected set; }
+    public string CertificateName { get; protected set; } = string.Empty;
     
     public byte[] PrivateKey { get; protected set; }
     public byte[] PublicKey { get; protected set; }

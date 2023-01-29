@@ -21,6 +21,12 @@
       <None Update="SQL\01_structure\20230128_1451_intermediate_certificate_authorities.sql">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="SQL\01_structure\20230129_1549_root_requests.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQL\01_structure\20230129_1933_intermediate_requests.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

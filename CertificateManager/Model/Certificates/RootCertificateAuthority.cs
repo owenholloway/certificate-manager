@@ -2,29 +2,32 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using CertificateManager.Dto;
-using CertificateManager.Features;
+using CertificateManager.Features.Certificate;
 
 namespace CertificateManager.Model.Certificates;
 
 public class RootCertificateAuthority : Certificate
 {
+    public int RootRequestId { get; private set; }
     
-    public virtual List<IntermediateCertificateAuthority> IntermediateCertificateAuthorities { get; private set; }
+    public virtual List<IntermediateCertificateAuthority> IntermediateCertificateAuthorities { get; private set; } = new();
     
-    private RootCertificateAuthority()
+
+    protected RootCertificateAuthority()
     {
         
     }
 
-    public static RootCertificateAuthority Create(string certificateName)
+    public static RootCertificateAuthority Create(int rootRequestId, string certificateName)
     {
         var obj = new RootCertificateAuthority();
 
         var certificate = GenerateCertificateAuthority(certificateName);
 
         obj.CertificateName = certificateName;
-        
-        obj.PrivateKey = certificate.PrivateKey;
+
+        obj.RootRequestId = rootRequestId;
+        obj.PrivateKey = Encryption.Encrypt(certificate.PrivateKey);
         obj.PublicKey = certificate.PublicKey;
         obj.CertificateData = certificate.X509Certificate.RawData;
         obj.SerialNo = Encoding.ASCII.GetBytes(certificate.X509Certificate.SerialNumber);
@@ -40,7 +43,7 @@ public class RootCertificateAuthority : Certificate
     {
         return X509Certificate2.CreateFromPem(
             PemEncoding.Write("CERTIFICATE", CertificateData),
-            PemEncoding.Write("PRIVATE KEY", PrivateKey));
+            PemEncoding.Write("PRIVATE KEY", Encryption.Decrypt(PrivateKey)));
 
     }
     

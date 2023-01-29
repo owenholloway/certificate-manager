@@ -43,7 +43,7 @@ public class StateManager
 
         if (!hasDatabase)
         {
-            Log.Information($"✨✨  New {Environment.GetEnvironmentVariable("DB_DATABASE")} database will be created  ✨✨  ");
+            Log.Information($"✨ ✨  New {Environment.GetEnvironmentVariable("DB_DATABASE")} database will be created  ✨ ✨  ");
             _functions
                 .RunNonQuery($"create database {Environment.GetEnvironmentVariable("DB_DATABASE")};",false);
             _functions
@@ -58,9 +58,13 @@ public class StateManager
     public void ResolveSchemaState()
     {
         const string structurePath = "./SQL/01_structure/";
-        
-        var files = Directory.GetFiles(structurePath);
 
+        var files = Directory
+            .GetFiles(structurePath)
+            .ToList();
+
+        files.Sort();
+        
         var scripts = 
             files
                 .Select(file => 

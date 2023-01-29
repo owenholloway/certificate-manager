@@ -116,24 +116,15 @@ namespace CertificateManager.Features.Stores
             
         }
 
-        
-        /// <summary>
-        /// </summary>
-        /// 
-        /// <remarks>
-        /// WARNING!!
-        /// This should not be used in most cases. Instead disposable will take care of saving to the DB!!
-        /// WARNING!!
-        /// </remarks>
         public void Commit()
         {
             try
             {
-                _context.SaveChanges();
+                var result = _context.SaveChangesAsync().Result;
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                Log.Error(e.StackTrace!);
             }
         }
     }

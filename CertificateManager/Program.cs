@@ -15,6 +15,8 @@ builder
 
 var container = builder.Build();
 
+Log.Warning("Test Start");
+
 container.Resolve<CertificateController>().ResolveChainConfiguration();
 
 container.Resolve<CertificateController>().OutputCertificateChains();
