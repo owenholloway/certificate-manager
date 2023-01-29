@@ -12,7 +12,8 @@ public class CertificateController
     private IReadOnlyRepository ReadOnlyRepository { get; init; }
     private IReadWriteRepository ReadWriteRepository { get; init; }
     
-    private static DateTimeOffset Now() => DateTimeOffset.Now.ToUniversalTime();
+    private static DateTimeOffset Now(int daysOffset = 0) 
+        => DateTimeOffset.Now.AddDays(daysOffset).ToUniversalTime();
     
     public CertificateController(IReadOnlyRepository readOnlyRepository, IReadWriteRepository readWriteRepository)
     {
@@ -27,7 +28,7 @@ public class CertificateController
             .IncludeRelationships()
             .Where(rr => 
                 rr.RootCertificateAuthorities
-                    .Count(rca => rca.ValidTill > Now()) == 0);
+                    .Count(rca => rca.ValidTill > Now(30)) == 0);
         
         foreach (var openRequest in openRootRequests)
         {       
@@ -47,7 +48,7 @@ public class CertificateController
             .IncludeRelationships()
             .Where(rr => 
                 rr.IntermediateCertificateAuthorities
-                    .Count(rca => rca.ValidTill > Now()) == 0);
+                    .Count(rca => rca.ValidTill > Now(30)) == 0);
         
         foreach (var openRequest in openIntermediateRequests)
         {
@@ -70,7 +71,7 @@ public class CertificateController
             .IncludeRelationships()
             .Where(rr => 
                 rr.IssuedCertificates
-                    .Count(rca => rca.ValidTill > Now()) == 0);
+                    .Count(rca => rca.ValidTill > Now(30)) == 0);
         
         foreach (var openRequest in openIssueRequests)
         {
@@ -95,7 +96,7 @@ public class CertificateController
     {   
         var caChains = ReadOnlyRepository
             .Table<RootCertificateAuthority, int>()
-            .Where(ca => ca.ValidTill > Now())
+            .Where(ca => ca.ValidTill > Now(0))
             .IncludeRelationships()
             .ToList();
             
