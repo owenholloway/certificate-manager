@@ -55,8 +55,8 @@ public class RootCertificateAuthority : Certificate
             .Add(new X509BasicConstraintsExtension(
                 true,
                 true,
-                5, 
-                false));
+                4, 
+                true));
 
         var certificate = request.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(6));
 

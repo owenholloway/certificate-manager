@@ -50,9 +50,9 @@ public class IntermediateCertificateAuthority : Certificate
             .CertificateExtensions
             .Add(new X509BasicConstraintsExtension(
                 true,
-                false,
-                0, 
-                false));
+                true,
+                3, 
+                true));
 
         var timestamp = DateTime.Now;
 

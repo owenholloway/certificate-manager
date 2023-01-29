@@ -17,3 +17,4 @@ var container = builder.Build();
 
 container.Resolve<CertificateController>().ResolveChainConfiguration();
 
+container.Resolve<CertificateController>().OutputCertificateChains();
