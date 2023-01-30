@@ -9,12 +9,15 @@ Log.Logger = Logging.CreateLogger();
 var builder = new ContainerBuilder();
 
 builder.RegisterModule<CommonStore>();
+
 builder
     .RegisterType<CertificateController>()
     .InstancePerDependency();
 
+builder
+    .RegisterType<CertificateService>()
+    .InstancePerDependency();
+
 var container = builder.Build();
 
-container.Resolve<CertificateController>().ResolveChainConfiguration();
-
-container.Resolve<CertificateController>().OutputCertificateChains();
+await container.Resolve<CertificateService>().Start();

@@ -25,13 +25,9 @@ public class CommonStore : Module
 
         builder.Register(c =>
         {
-            
-            
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            var factory = new LoggerFactory().AddSerilog(Log.Logger);
-            
-            optionsBuilder.UseLoggerFactory(factory);
+            //optionsBuilder.UseLoggerFactory(new LoggerFactory().AddSerilog(Log.Logger));
             //optionsBuilder.EnableSensitiveDataLogging();
             //optionsBuilder.EnableDetailedErrors();
 
