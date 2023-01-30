@@ -32,7 +32,8 @@ public class CommonStore : Module
             var factory = new LoggerFactory().AddSerilog(Log.Logger);
             
             optionsBuilder.UseLoggerFactory(factory);
-            optionsBuilder.EnableSensitiveDataLogging();
+            //optionsBuilder.EnableSensitiveDataLogging();
+            //optionsBuilder.EnableDetailedErrors();
 
             optionsBuilder.UseNpgsql(GenerateConnectionString());
             
@@ -46,8 +47,6 @@ public class CommonStore : Module
             var cache = new MemoryCache(options);
 
             optionsBuilder.UseMemoryCache(cache);
-
-            optionsBuilder.EnableDetailedErrors();
             
             return optionsBuilder.Options;
         }).As<DbContextOptions>().InstancePerLifetimeScope();
