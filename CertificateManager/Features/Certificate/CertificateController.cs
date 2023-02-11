@@ -117,7 +117,7 @@ public class CertificateController
             var caPublicFileData = new string(PemEncoding.Write("CERTIFICATE", certificateAuthority.CertificateData));
             File.WriteAllText($"{publicOutput}{certificateAuthority.CertificateName}.pem",caPublicFileData);
             
-            var caPrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", certificateAuthority.PrivateKey));
+            var caPrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", certificateAuthority.GetPrivateKeyDecoded()));
             File.WriteAllText($"{privateOutput}{certificateAuthority.CertificateName}.key.pem",caPrivateFileData);
             
             foreach (var intermediateCertificateAuthority in certificateAuthority.IntermediateCertificateAuthorities)
@@ -128,7 +128,7 @@ public class CertificateController
                 var intermediateFullChainData =  intermediatePublicFileData  + "\n" + caPublicFileData;
                 File.WriteAllText($"{publicOutput}{intermediateCertificateAuthority.CertificateName}.fullchain.pem",intermediateFullChainData);
             
-                var intermediatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", intermediateCertificateAuthority.PrivateKey));
+                var intermediatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", intermediateCertificateAuthority.GetPrivateKeyDecoded()));
                 File.WriteAllText($"{privateOutput}{intermediateCertificateAuthority.CertificateName}.key.pem",intermediatePrivateFileData);
 
                 foreach (var issuedCertificate in intermediateCertificateAuthority.IssuedCertificates)
@@ -139,7 +139,7 @@ public class CertificateController
                     var issuedCertificateFullChainData =  issuedCertificatePublicFileData + "\n" + intermediatePublicFileData  + "\n" + caPublicFileData;
                     File.WriteAllText($"{publicOutput}{issuedCertificate.CertificateName}.fullchain.pem",issuedCertificateFullChainData);
             
-                    var issuedCertificatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", issuedCertificate.PrivateKey));
+                    var issuedCertificatePrivateFileData = new string(PemEncoding.Write("PRIVATE KEY", issuedCertificate.GetPrivateKeyDecoded()));
                     File.WriteAllText($"{privateOutput}{issuedCertificate.CertificateName}.key.pem",issuedCertificatePrivateFileData);
                 }
                 

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using CertificateManager.Features;
+using CertificateManager.Features.Certificate;
 using CertificateManager.Features.Stores;
 
 namespace CertificateManager.Model.Certificates;
@@ -18,5 +19,9 @@ public class Certificate : Entity<int>
     
     public DateTimeOffset ValidFrom { get; protected set; }
     public DateTimeOffset ValidTill { get; protected set; }
-    
+
+    public byte[] GetPrivateKeyDecoded()
+    {
+        return Encryption.Decrypt(PrivateKey);
+    }
 }
