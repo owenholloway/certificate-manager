@@ -9,6 +9,7 @@ public class CommonContext : DbContext
     
     public CommonContext(DbContextOptions options) : base(options)
     {
+        
     }
     
     

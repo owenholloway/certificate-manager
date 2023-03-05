@@ -1,23 +1,31 @@
-﻿using Autofac;
-using CertificateManager.Features;
-using CertificateManager.Features.Certificate;
-using CertificateManager.Features.Modules;
+﻿using CertificateManager.Features;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 Log.Logger = Logging.CreateLogger();
 
-var builder = new ContainerBuilder();
+Host.CreateDefaultBuilder(args)
+    .UseSerilog(Log.Logger)
+    .ConfigureServices(ServiceManager.Configure)
+    .Build()
+    .Run();
+    
+// var builder = new ContainerBuilder();
+//
+// builder.RegisterModule<CommonStore>();
+//
+// builder
+//     .RegisterType<CertificateController>()
+//     .InstancePerDependency();
+//
+// builder
+//     .RegisterType<CertificateService>()
+//     .InstancePerDependency();
+//
+// var container = builder.Build();
 
-builder.RegisterModule<CommonStore>();
+//container.Resolve<CertificateController>().OutputCertificateChains();
 
-builder
-    .RegisterType<CertificateController>()
-    .InstancePerDependency();
+//await container.Resolve<CertificateService>().Start();
 
-builder
-    .RegisterType<CertificateService>()
-    .InstancePerDependency();
 
-var container = builder.Build();
-
-await container.Resolve<CertificateService>().Start();
